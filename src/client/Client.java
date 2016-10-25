@@ -11,23 +11,39 @@ public class Client {
 	public static void main(String[] args) {
 		BufferedReader br;
 		PrintWriter out;
-		boolean progIsRunning = true;
+		ValidationService validationService = ValidationService.getInstance();
 
 		// welcome user
 		View view = new View();
 		view.welcome();
 
-		while(progIsRunning){
+		while(true){
 			try {
-				//input user
-				br = new BufferedReader(new InputStreamReader(System.in));
-				String input = br.readLine();
 
-				//TODO validate input user
+				br = new BufferedReader(new InputStreamReader(System.in));
+				String input;
+				boolean isValidInput=false;
+
+				//input and validation user input
+				do{
+					input = br.readLine();
+					if(validationService.checkInput(input).equals("exit")){
+						view.goodbye();
+						return;
+					}
+					if(validationService.checkInput(input).equals("help")){
+						view.help();
+					}
+					if(validationService.checkInput(input).equals("")){
+						isValidInput=true;
+					}else
+						System.out.println(validationService.checkInput(input));
+				}while(!isValidInput);
+
 
 				// connect to server
 				Socket client = new Socket(InetAddress.getLocalHost(), SERVER_PORT);
-				System.out.println("Connected to Server...");
+				//				System.out.println("Connected to Server...");
 
 				//send data to server
 				out = new PrintWriter(client.getOutputStream(), true);
@@ -37,7 +53,7 @@ public class Client {
 				//receive data from Server
 				br = new BufferedReader(new InputStreamReader(client.getInputStream()));
 				String result = br.readLine();
-				System.out.println(result);
+				//				System.out.println(result);
 
 				//close connection
 				client.close();
@@ -49,8 +65,6 @@ public class Client {
 				System.out.println("Connection to Server failed.");
 			}
 		}
-		//say goodbye to user
-		view.goodbye();
 	}
 
 }
